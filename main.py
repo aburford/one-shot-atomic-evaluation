@@ -34,17 +34,32 @@ def get_gradient(X, y, theta):
 	grad = grad.mean(axis=0)
 	return -grad
 
+def calc_accuracy(X, y, theta):
+	m, n = X.shape
+	y_hat = np.sign(X @ theta)
+	return sum(y_hat == y) / m
+
+def gd(X, y, iters=500, alpha=0.01):
+	m, n = X.shape
+	theta = np.random.normal(size=n)
+	for i in range(iters):
+		theta -= alpha * get_gradient(X, y, theta)
+	return theta
+
 if __name__ == '__main__':
 	# X: (batch, pixels)
 	# Y: (batch)
 	X, y = get_training_data()
 	y = y.astype('int32') * 2 - 1
-	batch_size, input_size = X.shape
-	theta = np.random.normal(size=input_size)
-	theta = np.zeros(input_size)
+	m, n = X.shape
+	theta = np.random.normal(size=n)
+	theta = np.zeros(n)
 	grad = get_gradient(X, y, theta)
 	plot_num(grad, 'grad')
 	biggest = abs(grad).argsort()
-	
+	small_n = 60
+	print('selecting %d out of %d features' % (small_n, n))
+	X = X.T[biggest < small_n].T
+	theta = gd(X, y)
+	print('test accuracy: %.2f' % calc_accuracy(X, y, theta))
 	#X = add_noise(X, 50)
-	
